@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 mkdir -p $HOME/tools
 cd $HOME/tools
 LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
