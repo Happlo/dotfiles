@@ -5,6 +5,7 @@ Install the chezmoi binary into `~/.local/bin`:
 
 ```sh
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
 ### 2. Initialize dotfiles (HTTPS)
