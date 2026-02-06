@@ -125,4 +125,4 @@ export FZF_ALT_C_COMMAND="fdfind --type d $FD_OPTIONS"
 #[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 # must be placed last
 eval "$(starship init zsh)"
-source /$HOME/tools/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $HOME/tools/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
