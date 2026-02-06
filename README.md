@@ -4,14 +4,5 @@
 Install the chezmoi binary into `~/.local/bin`:
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-### 2. Initialize dotfiles (HTTPS)
-HTTPS works everywhere (no SSH required):
-
-```sh
-chezmoi init https://github.com/Happlo/dotfiles.git
-chezmoi apply
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin" init --apply Happlo
 ```
