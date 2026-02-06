@@ -9,3 +9,8 @@ chsh -s "$(which zsh)"
 
 # Restore previous .zshrc
 mv ~/.zshrc.backup ~/.zshrc
+
+# Install zsh-syntax-highlighting
+cd tools
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
+cd ..
