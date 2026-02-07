@@ -17,9 +17,10 @@ require("options")
 require("keymaps")
 -- Load only the plugins we want: neotree (file tree), lualine (status bar), oxocarbon (colors)
 require("lazy").setup({
-  "plugins.neotree",
-  "plugins.lualine",
-  "plugins.oxocarbon",
+  require("plugins.neotree"),
+  require("plugins.lualine"),
+  require("plugins.oxocarbon"),
+  require("plugins.which-key"),
 })
 -- skip full LSP setup for minimal config
 -- require("setup-lsp")

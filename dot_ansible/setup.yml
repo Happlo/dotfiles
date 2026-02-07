@@ -37,6 +37,7 @@
           - ripgrep
           - fd-find
           - tldr
+          - tree
           - neovim
         state: present
       become: true
