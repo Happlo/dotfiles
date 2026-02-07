@@ -1,0 +1,181 @@
+---
+- name: Setup system packages and tools
+  hosts: localhost
+  connection: local
+  vars:
+    home_dir: "{{ ansible_user_dir }}"
+    tools_dir: "{{ home_dir }}/tools"
+  
+  tasks:
+    # ============================================================================
+    # APT Packages
+    # ============================================================================
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      tags: apt
+
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - git
+          - gcc
+          - g++
+          - make
+          - pkg-config
+          - zsh
+          - fzf
+          - bat
+          - git-delta
+          - cmake
+          - ninja-build
+          - gettext
+          - unzip
+          - ripgrep
+          - fd-find
+        state: present
+      become: true
+      tags: apt
+
+    - name: Create bat -> batcat symlink on Ubuntu
+      ansible.builtin.file:
+        src: /usr/bin/batcat
+        dest: /usr/local/bin/bat
+        state: link
+        force: true
+      become: true
+      when: ansible_os_family == "Debian" and ansible_distribution == "Ubuntu"
+      tags: apt
+
+    # ============================================================================
+    # Rust and Cargo
+    # ============================================================================
+    - name: Check if Rust is installed
+      ansible.builtin.stat:
+        path: "{{ home_dir }}/.cargo/bin/cargo"
+      register: rust_installed
+      tags: rust
+
+    - name: Download Rust installer
+      ansible.builtin.get_url:
+        url: https://sh.rustup.rs
+        dest: /tmp/rustup-init.sh
+        mode: '0755'
+      when: not rust_installed.stat.exists
+      tags: rust
+
+    - name: Install Rust
+      ansible.builtin.shell:
+        cmd: /tmp/rustup-init.sh -y
+        creates: "{{ home_dir }}/.cargo/bin/cargo"
+      environment:
+        RUSTUP_HOME: "{{ home_dir }}/.rustup"
+        CARGO_HOME: "{{ home_dir }}/.cargo"
+      tags: rust
+
+    - name: Install Cargo packages
+      ansible.builtin.shell:
+        cmd: "{{ home_dir }}/.cargo/bin/cargo install {{ item }}"
+      environment:
+        CARGO_HOME: "{{ home_dir }}/.cargo"
+      loop:
+        - zellij
+        - starship
+        - zoxide
+      tags: rust
+
+    # ============================================================================
+    # Lazygit
+    # ============================================================================
+    - name: Create tools directory
+      ansible.builtin.file:
+        path: "{{ tools_dir }}"
+        state: directory
+        mode: '0755'
+      tags: lazygit
+
+    - name: Get latest Lazygit version
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/jesseduffield/lazygit/releases/latest
+        return_content: true
+      register: lazygit_release
+      tags: lazygit
+
+    - name: Extract Lazygit version
+      ansible.builtin.set_fact:
+        lazygit_version: "{{ lazygit_release.json.tag_name | regex_replace('^v', '') }}"
+      tags: lazygit
+
+    - name: Download Lazygit
+      ansible.builtin.get_url:
+        url: "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz"
+        dest: "{{ tools_dir }}/lazygit.tar.gz"
+        mode: '0644'
+      tags: lazygit
+
+    - name: Extract Lazygit
+      ansible.builtin.unarchive:
+        src: "{{ tools_dir }}/lazygit.tar.gz"
+        dest: "{{ tools_dir }}"
+        remote_src: true
+      tags: lazygit
+
+    - name: Install Lazygit
+      ansible.builtin.copy:
+        src: "{{ tools_dir }}/lazygit"
+        dest: /usr/local/bin/lazygit
+        mode: '0755'
+        remote_src: true
+      become: true
+      tags: lazygit
+
+    # ============================================================================
+    # Zsh and Oh My Zsh
+    # ============================================================================
+    - name: Backup current .zshrc
+      ansible.builtin.copy:
+        src: "{{ home_dir }}/.zshrc"
+        dest: "{{ home_dir }}/.zshrc.backup"
+        remote_src: true
+      ignore_errors: true
+      tags: zsh
+
+    - name: Download Oh My Zsh installer
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: /tmp/ohmyzsh-install.sh
+        mode: '0755'
+      tags: zsh
+
+    - name: Install Oh My Zsh
+      ansible.builtin.shell:
+        cmd: |
+          RUNZSH=no /tmp/ohmyzsh-install.sh
+        creates: "{{ home_dir }}/.oh-my-zsh"
+      environment:
+        HOME: "{{ home_dir }}"
+      tags: zsh
+
+    - name: Restore previous .zshrc
+      ansible.builtin.copy:
+        src: "{{ home_dir }}/.zshrc.backup"
+        dest: "{{ home_dir }}/.zshrc"
+        remote_src: true
+      ignore_errors: true
+      tags: zsh
+
+    - name: Set Zsh as default shell
+      ansible.builtin.user:
+        name: "{{ ansible_user_id }}"
+        shell: /usr/bin/zsh
+      become: true
+      tags: zsh
+
+    - name: Install zsh-syntax-highlighting
+      ansible.builtin.git:
+        repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+        dest: "{{ tools_dir }}/zsh-syntax-highlighting"
+      tags: zsh
