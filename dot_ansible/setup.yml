@@ -36,6 +36,8 @@
           - unzip
           - ripgrep
           - fd-find
+          - tldr
+          - neovim
         state: present
       become: true
       tags: apt
