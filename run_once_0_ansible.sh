@@ -10,6 +10,6 @@ sudo apt-get install -y ansible
 echo "==> Ansible installed"
 
 echo "==> Running Ansible playbook setup"
-ansible-playbook -v ~/.ansible/setup.yml
+ansible-playbook ~/.ansible/setup.yml
 
 echo "==> Setup complete"
