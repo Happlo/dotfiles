@@ -103,9 +103,6 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Some pip installations
-export PATH="$HOME/.local/bin:$PATH"
-
 eval "$(zoxide init zsh)"
 
 # Add fuzzy completion with fzf
