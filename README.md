@@ -1,8 +1,6 @@
-## Bootstrap a new machine (WSL / Linux)
+# Bootstrap a new machine (WSL / Linux)
 
-### 1. Install chezmoi
-Install the chezmoi binary into `~/.local/bin`:
-
+## Run this line to install everything to a new system
 ```sh
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin" init --apply Happlo
 ```
