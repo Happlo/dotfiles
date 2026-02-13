@@ -8,6 +8,6 @@ if ! command -v ansible-playbook >/dev/null 2>&1; then
   sudo apt-get install -y ansible
 fi
 
-ansible-playbook ~/.ansible/setup.yml
+ansible-playbook -K -i localhost, -c local ~/.ansible/setup.yml
 
 echo "==> Setup complete"
