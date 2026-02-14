@@ -24,6 +24,7 @@
           - git
           - gcc
           - g++
+          - gdb
           - make
           - pkg-config
           - zsh
