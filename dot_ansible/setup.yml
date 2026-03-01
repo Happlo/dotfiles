@@ -35,6 +35,7 @@
           - ninja-build
           - gettext
           - unzip
+          - zip
           - ripgrep
           - fd-find
           - tldr
@@ -136,6 +137,39 @@
         remote_src: true
       become: true
       tags: lazygit
+
+    # ============================================================================
+    # vcpkg
+    # ============================================================================
+    - name: Create tools directory for vcpkg
+      ansible.builtin.file:
+        path: "{{ tools_dir }}"
+        state: directory
+        mode: '0755'
+      tags: vcpkg
+
+    - name: Clone vcpkg
+      ansible.builtin.git:
+        repo: https://github.com/microsoft/vcpkg.git
+        dest: "{{ tools_dir }}/vcpkg"
+        update: true
+      tags: vcpkg
+
+    - name: Bootstrap vcpkg
+      ansible.builtin.shell:
+        cmd: ./bootstrap-vcpkg.sh
+        chdir: "{{ tools_dir }}/vcpkg"
+        creates: "{{ tools_dir }}/vcpkg/vcpkg"
+      tags: vcpkg
+
+    - name: Symlink vcpkg into /usr/local/bin
+      ansible.builtin.file:
+        src: "{{ tools_dir }}/vcpkg/vcpkg"
+        dest: /usr/local/bin/vcpkg
+        state: link
+        force: true
+      become: true
+      tags: vcpkg
 
     # ============================================================================
     # Zsh and Oh My Zsh
