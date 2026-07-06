@@ -5,6 +5,7 @@
   vars:
     home_dir: "{{ ansible_user_dir }}"
     tools_dir: "{{ home_dir }}/tools"
+    nvm_dir: "{{ home_dir }}/.nvm"
   
   tasks:
     # ============================================================================
@@ -170,6 +171,46 @@
         force: true
       become: true
       tags: vcpkg
+
+    # ============================================================================
+    # Node.js and pnpm
+    # ============================================================================
+    - name: Install nvm
+      ansible.builtin.git:
+        repo: https://github.com/nvm-sh/nvm.git
+        dest: "{{ nvm_dir }}"
+        version: master
+        update: true
+      tags: node
+
+    - name: Install latest LTS Node.js with nvm
+      ansible.builtin.shell:
+        cmd: |
+          . "{{ nvm_dir }}/nvm.sh"
+          nvm install --lts
+          nvm alias default 'lts/*'
+        executable: /bin/bash
+      environment:
+        NVM_DIR: "{{ nvm_dir }}"
+      tags: node
+
+    - name: Install pnpm
+      ansible.builtin.shell:
+        cmd: |
+          . "{{ nvm_dir }}/nvm.sh"
+          nvm use --lts
+          if npm list -g --depth=0 pnpm >/dev/null 2>&1; then
+            echo "pnpm already installed"
+          else
+            npm install -g pnpm
+            echo "pnpm installed"
+          fi
+        executable: /bin/bash
+      environment:
+        NVM_DIR: "{{ nvm_dir }}"
+      register: pnpm_install
+      changed_when: "'pnpm installed' in pnpm_install.stdout"
+      tags: node
 
     # ============================================================================
     # Zsh and Oh My Zsh
