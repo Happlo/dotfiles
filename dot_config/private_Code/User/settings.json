@@ -1,0 +1,9 @@
+{
+  "vim.handleKeys": {
+    "<C-f>": false
+    "<C-p>": false
+  },
+  "C_Cpp.sshTargetsView": "disabled",
+  "chat.restoreLastPanelSession": true,
+  "chat.viewSessions.orientation": "stacked"
+}
